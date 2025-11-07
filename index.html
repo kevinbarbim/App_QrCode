@@ -150,19 +150,39 @@
             ]
         };
 
-        function onScanSuccess(decodedText, decodedResult) {
-            scanFeedback.innerText = "Sucesso! Processando...";
-            scanFeedback.className = "text-success fw-bold";
-            
-            html5QrCode.stop().then(() => {
-                localStorage.setItem('receitaData', JSON.stringify(mockReceitaData));
-                window.location.href = 'receita.html';
-            }).catch(err => {
-                console.warn("Erro ao parar a câmera, mas seguimos em frente.", err);
-                localStorage.setItem('receitaData', JSON.stringify(mockReceitaData));
-                window.location.href = 'receita.html';
-            });
-        }
+      function onScanSuccess(decodedText, decodedResult) {
+            scanFeedback.innerText = "Sucesso! Processando...";
+            scanFeedback.className = "text-success fw-bold";
+            
+            html5QrCode.stop().then(() => {
+                // --- INÍCIO DA MUDANÇA ---
+                try {
+                    // 1. Tenta processar o QR code REAL que a câmera leu
+                    const dataReal = JSON.parse(decodedText); 
+                    
+                    // 2. Salva os dados REAIS no localStorage
+                    localStorage.setItem('receitaData', JSON.stringify(dataReal));
+                    
+                    // 3. Redireciona
+                    window.location.href = 'receita.html';
+
+                } catch (error) {
+                    // Se o QR code lido for um JSON inválido, ele falha
+                    console.error("FALHA AO PROCESSAR O JSON DO QR CODE!", error);
+                    scanFeedback.innerText = "Erro: Este QR Code não é uma receita válida.";
+                    scanFeedback.className = "text-danger fw-bold";
+                    
+                    // Reinicia a UI para tentar de novo
+                    btnStartScan.style.display = 'block';
+                    qrReaderDiv.style.display = 'none';
+                    scanFeedback.style.display = 'block'; 
+                }
+                // --- FIM DA MUDANÇA ---
+            }).catch(err => {
+                console.warn("Erro ao parar a câmera, mas seguimos em frente.", err);
+                // A lógica de try/catch acima já tratou o sucesso ou falha do JSON.
+            });
+        }
 
         function onScanFailure(error) { /* não faz nada */ }
 
