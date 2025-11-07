@@ -30,19 +30,21 @@
             top: 0;
             z-index: 1020;
         }
-        header .logo {
+ header .logo {
             width: 40px;
             height: 40px;
-            border-radius: 50%;
-            background-color: #000;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 0.8em;
             margin-right: 10px;
-            border: 1px solid #000;
+           
+         
+        }
+        header .logo img {
+            width: 100%;   /* A imagem ocupa 100% da largura do contêiner */
+            height: 100%;  /* A imagem ocupa 100% da altura do contêiner */
+           
+            display: block; /* Remove possíveis espaços extras da imagem */
         }
         header .app-title {
             font-size: 1.2em;
@@ -94,7 +96,9 @@
 
     <header>
         <div class="d-flex align-items-center">
-            <div class="logo">LOGO</div>
+            <div class="logo">
+    <img src="logo.png" alt="Logo Conecta Saúde">
+</div>
             <span class="app-title">Conecta Saúde</span>
         </div>
     </header>

@@ -32,19 +32,21 @@
             top: 0;
             z-index: 1000;
         }
-        header .logo {
+    header .logo {
             width: 40px;
             height: 40px;
-            border-radius: 50%;
-            background-color: #000;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 0.8em;
             margin-right: 10px;
-            border: 1px solid #000;
+           
+         
+        }
+        header .logo img {
+            width: 100%;   /* A imagem ocupa 100% da largura do contêiner */
+            height: 100%;  /* A imagem ocupa 100% da altura do contêiner */
+           
+            display: block; /* Remove possíveis espaços extras da imagem */
         }
         header .app-title {
             font-size: 1.2em;
@@ -222,7 +224,9 @@
 <body>
 
     <header>
-        <div class="logo">LOGO</div>
+        <div class="logo">
+    <img src="logo.png" alt="Logo Conecta Saúde">
+</div>
         <span class="app-title">Conecta Saúde</span>
     </header>
 
@@ -247,7 +251,7 @@
             </div>
 
             <div class="chat-input-area">
-                <input type="text" id="chat-input" placeholder="digite sua mensagem">
+                <input type="text" id="chat-input" placeholder="Digite sua mensagem">
                 <button class="btn-send" id="btn-send-message">
                     <i class="bi bi-check-lg"></i>
                 </button>
@@ -427,15 +431,18 @@
             return `Desculpe, não entendi sua pergunta sobre <strong>${infoBula.nome}</strong>. Tente perguntar sobre "efeitos colaterais", "álcool" ou "para que serve".`;
         }
 
-        // --- Inicialização da Página ---
+        // --- Inicialização da Página (COM TRAVA DE SEGURANÇA) ---
         document.addEventListener('DOMContentLoaded', () => {
             const storedReceita = localStorage.getItem('receitaData');
+            
             if (storedReceita) {
+                // 1. DADOS EXISTEM? OK, continue e mostre a página.
                 fullReceitaData = JSON.parse(storedReceita);
                 renderReceita(fullReceitaData);
             } else {
-                nomePacienteSpan.innerText = "Visitante";
-                listaRemediosDiv.innerHTML = "<p class='text-danger'>Nenhuma receita encontrada. Por favor, escaneie o QR Code na tela inicial.</p>";
+                // 2. DADOS NÃO EXISTEM? Redirecione de volta.
+                alert("Nenhuma receita foi lida. Por favor, escaneie seu QR Code primeiro.");
+                window.location.href = 'index.html'; // Envia o usuário de volta para a tela de scan
             }
         });
     </script>
