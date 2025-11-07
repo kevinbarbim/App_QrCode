@@ -123,31 +123,50 @@
         }
 
         // --- SEÇÃO DO LEITOR DE QR CODE ---
-        function onScanSuccess(decodedText, decodedResult) {
-            scanFeedback.innerText = "Sucesso! Carregando receita...";
-            scanFeedback.className = "text-success";
+        // --- SEÇÃO DO LEITOR DE QR CODE ---
+function onScanSuccess(decodedText, decodedResult) {
+    
+    // 1. Feedback imediato
+    scanFeedback.innerText = "Sucesso! Processando...";
+    scanFeedback.className = "text-success fw-bold";
+    console.log("QR Code lido:", decodedText);
+
+    // 2. Parar a câmera é uma operação assíncrona.
+    // Vamos garantir que ela pare, mas não vamos travar o app se der erro.
+    html5QrCode.stop().then(() => {
+        console.log("Câmera parada.");
+    }).catch(err => {
+        console.warn("Erro ao parar a câmera, mas tudo bem, seguimos em frente.", err);
+    }).finally(() => { 
+        // 3. TENTAR processar os dados
+        try {
+            // AQUI PODE ESTAR O ERRO: Se o texto do QR Code não for um JSON válido, vai falhar.
+            const data = JSON.parse(decodedText);
             
-            html5QrCode.stop().then(() => {
-                const data = JSON.parse(decodedText);
-                renderReceita(data);
-                mostrarTela('view-receita');
-            }).catch(err => console.error("Erro ao parar scanner:", err));
+            // Se passou do JSON.parse, estamos bem!
+            console.log("JSON processado com sucesso:", data);
+            
+            // 4. Renderizar os dados na tela
+            renderReceita(data);
+            
+            // 5. Mudar para a tela da receita
+            mostrarTela('view-receita');
+
+        } catch (error) {
+            // 6. Se deu erro no JSON.parse
+            console.error("FALHA AO PROCESSAR O JSON!", error);
+            // Isso é o que você vê: "Sucesso! Carregando receita..."
+            // Vamos mudar a mensagem de feedback para o usuário
+            scanFeedback.innerText = "Erro: Este QR Code não é uma receita válida.";
+            scanFeedback.className = "text-danger fw-bold";
+            
+            // Reinicia o botão de scan para o usuário tentar de novo
+            btnStartScan.style.display = 'block';
+            qrReaderDiv.style.display = 'none';
+            scanFeedback.style.display = 'block'; // Garante que a msg de erro apareça
         }
-
-        function onScanFailure(error) { /* não faz nada no erro */ }
-
-        btnStartScan.addEventListener('click', () => {
-            qrReaderDiv.style.display = 'block';
-            scanFeedback.style.display = 'block';
-            btnStartScan.style.display = 'none';
-
-            html5QrCode.start(
-                { facingMode: "environment" }, // Pede a câmera TRASEIRA (mobile)
-                { fps: 10, qrbox: { width: 250, height: 250 } },
-                onScanSuccess,
-                onScanFailure
-            ).catch(err => alert("Erro ao iniciar a câmera: " + err));
-        });
+    });
+}
 
         // --- SEÇÃO DA TELA DE RECEITA ---
         function renderReceita(data) {
