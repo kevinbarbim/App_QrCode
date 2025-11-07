@@ -14,14 +14,13 @@
             --chat-bubble-bot: #f1f1f1;
         }
         body {
-            /* CORREÇÃO RESPONSIVIDADE: Aumenta o tamanho da fonte base */
             font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             color: var(--text-color);
             background-color: #f8f9fa;
             margin: 0;
             padding: 0;
             overflow-x: hidden;
-            font-size: 16px; /* Garante um bom tamanho base */
+            font-size: 16px; 
         }
         header {
             background-color: #fff;
@@ -52,36 +51,35 @@
             font-weight: bold;
             color: var(--text-color);
         }
-
         .container-custom {
             max-width: 960px;
             margin: 20px auto;
             padding: 0 15px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
         }
-
         .medication-section {
             background-color: #fff;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
             padding: 20px;
-            margin-bottom: 20px;
+            margin-bottom: 0;
         }
-        /* CORREÇÃO RESPONSIVIDADE: Aumenta fontes */
         .medication-section h4 {
-            font-size: 1.5rem; /* Título "Olá Fulano" maior */
+            font-size: 1.5rem;
             font-weight: 700;
         }
         .medication-section p {
-            font-size: 1rem; /* Texto de instrução maior */
+            font-size: 1rem;
             color: #6c757d;
         }
-
         .medication-item {
             display: flex;
             align-items: center;
             margin-bottom: 15px;
             cursor: pointer;
-            padding: 15px; /* Mais preenchimento */
+            padding: 15px;
             border-radius: 8px;
             transition: background-color 0.2s;
             border: 1px solid #eee;
@@ -93,15 +91,14 @@
             background-color: #e2f0fe;
             border-color: var(--primary-color);
         }
-        
         .medication-item input[type="radio"] {
             -webkit-appearance: none;
             -moz-appearance: none;
             appearance: none;
             border: 2px solid #333;
             border-radius: 50%;
-            width: 30px; /* Checkbox maior */
-            height: 30px; /* Checkbox maior */
+            width: 30px;
+            height: 30px;
             outline: none;
             transition: all 0.2s ease-in-out;
             margin-right: 15px;
@@ -120,31 +117,29 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 16px; /* Ícone maior */
+            font-size: 16px;
         }
-        /* CORREÇÃO RESPONSIVIDADE: Aumenta fontes */
         .medication-details h5 {
-            font-size: 1.25rem; /* Nome do remédio maior */
+            font-size: 1.25rem;
             font-weight: 700;
             margin-bottom: 4px;
         }
         .medication-details p {
             margin-bottom: 0;
-            font-size: 1rem; /* Posologia maior */
+            font-size: 1rem;
             color: var(--text-color);
         }
         .medication-details p.small {
-            font-size: 0.9rem; /* Dias restantes */
+            font-size: 0.9rem;
             color: #6c757d;
         }
-
-        /* Seção do Chat */
         .chat-section {
             background-color: #fff;
             border: 1px solid #000;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            height: 500px;
+            height: 70vh;
+            min-height: 400px;
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -152,7 +147,7 @@
         .chat-header {
             padding: 15px 20px 10px 20px;
             font-weight: bold;
-            font-size: 1rem; /* Tamanho bom */
+            font-size: 1rem;
             color: var(--text-color);
             border-bottom: 1px solid #eee;
         }
@@ -163,14 +158,13 @@
             display: flex;
             flex-direction: column;
         }
-        /* CORREÇÃO RESPONSIVIDADE: Aumenta fontes */
         .chat-bubble {
-            padding: 12px 18px; /* Mais preenchimento */
+            padding: 12px 18px;
             border-radius: 18px;
             margin-bottom: 10px;
             max-width: 85%;
             word-wrap: break-word;
-            font-size: 1rem; /* Chat maior */
+            font-size: 1rem;
         }
         .chat-bubble-bot {
             background-color: var(--chat-bubble-bot);
@@ -193,7 +187,7 @@
             border: none;
             padding: 8px 0;
             outline: none;
-            font-size: 1rem; /* Input maior */
+            font-size: 1rem;
             background: transparent;
         }
         .chat-input-area .btn-send {
@@ -215,16 +209,12 @@
         .chat-input-area .btn-send:hover {
             background-color: #333;
         }
-
-        /* Responsividade (Layout de 2 colunas em telas grandes) */
-        @media (min-width: 768px) {
+        @media (min-width: 992px) {
             .container-custom {
-                display: grid;
                 grid-template-columns: 1fr 1.2fr;
-                gap: 20px;
             }
-            .medication-section {
-                margin-bottom: 0;
+            .chat-section {
+                height: 600px;
             }
         }
     </style>
@@ -276,7 +266,6 @@
         let fullReceitaData = null;
 
         // --- BANCO DE DADOS DE BULAS (IA) ---
-        // CORRIGIDO: Chaves da IA batem com os nomes do JSON ("Dipirona 500mg", etc.)
         const bulaData = {
             "dipirona 500mg": {
                 "nome": "Dipirona 500mg",
@@ -310,7 +299,6 @@
                 const remedioItemDiv = document.createElement('div');
                 remedioItemDiv.className = 'medication-item';
                 
-                // CORREÇÃO DADOS DINÂMICOS: Agora usa item.posologia e item.dias
                 remedioItemDiv.innerHTML = `
                     <input type="radio" id="med-${item.id}" name="medication-select">
                     <label for="med-${item.id}" class="medication-details w-100">
@@ -380,6 +368,7 @@
             }, 1500);
         }
 
+        // --- FUNÇÃO CENTRAL DA "IA" (CORRIGIDA) ---
         function generateBotResponse(userMessage, remedioNome) {
             const userMessageLower = userMessage.toLowerCase();
             
@@ -387,7 +376,6 @@
                 return "Por favor, clique em um remédio da lista ao lado para que eu possa te ajudar com dúvidas específicas.";
             }
 
-            // CORRIGIDO: A chave da IA é o nome do remédio em minúsculo
             const remedioKey = remedioNome.toLowerCase();
             const infoBula = bulaData[remedioKey];
 
@@ -395,18 +383,28 @@
                 return `Desculpe, não tenho informações sobre "${remedioNome}". Por favor, selecione outro remédio.`;
             }
 
-            // --- Lógica da IA ---
+            // --- Lógica da IA (com mais inputs) ---
             if (userMessageLower.includes('efeitos colaterais') || userMessageLower.includes('efeitos') || userMessageLower.includes('mal')) {
                 return `Para <strong>${infoBula.nome}</strong>: ${infoBula.efeitos_colaterais}`;
             } 
             if (userMessageLower.includes('esqueci') || (userMessageLower.includes('dose') && userMessageLower.includes('esqueci'))) {
                 return `Para <strong>${infoBula.nome}</strong>: ${infoBula.esqueci_dose}`;
             }
-            if (userMessageLower.includes('álcool') || userMessageLower.includes('beber') || userMessageLower.includes('bebida')) {
+            // CORRIGIDO: Adicionado "alcool" sem acento
+            if (userMessageLower.includes('álcool') || userMessageLower.includes('alcool') || userMessageLower.includes('beber') || userMessageLower.includes('bebida')) {
                 return `Para <strong>${infoBula.nome}</strong>: ${infoBula.alcool}`;
             }
-            if (userMessageLower.includes('para que serve') || userMessageLower.includes('função') || userMessageLower.includes('uso')) {
+            // CORRIGIDO: Adicionado "funcao" sem acento
+            if (userMessageLower.includes('para que serve') || userMessageLower.includes('função') || userMessageLower.includes('funcao') || userMessageLower.includes('uso')) {
                 return `Para <strong>${infoBula.nome}</strong>: ${infoBula.para_que_serve}`;
+            }
+             // CORRIGIDO: Adicionado "duvidas" sem acento
+            if (userMessageLower.includes('dúvidas') || userMessageLower.includes('duvidas') || userMessageLower.includes('outras')) {
+                if (infoBula.outras_duvidas) {
+                    return `Para <strong>${infoBula.nome}</strong>: ${infoBula.outras_duvidas}`;
+                } else {
+                    return `Não tenho outras dúvidas cadastradas para <strong>${infoBula.nome}</strong>. Tente perguntar algo mais específico, como "efeitos colaterais".`;
+                }
             }
             if (userMessageLower.includes('olá') || userMessageLower.includes('oi')) {
                 return `Olá! Posso ajudar com <strong>${infoBula.nome}</strong>?`;
@@ -414,6 +412,7 @@
             if (userMessageLower.includes('obrigado') || userMessageLower.includes('valeu')) {
                 return `De nada! Se tiver mais alguma dúvida, é só perguntar.`;
             }
+            // CORRIGIDO: Adicionado "posologia" sem acento
             if (userMessageLower.includes('posologia') || userMessageLower.includes('como tomar')) {
                  if (fullReceitaData && fullReceitaData.receita) {
                     const remedioDaReceita = fullReceitaData.receita.find(r => r.remedio.toLowerCase() === remedioKey);

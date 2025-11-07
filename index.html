@@ -119,8 +119,7 @@
         const scanFeedback = document.getElementById('scan-feedback');
         const html5QrCode = new Html5Qrcode("qr-reader");
 
-        // --- DADOS DE TESTE (MOCK) ---
-        // CORRIGIDO: Este JSON agora bate 100% com o que você pediu (e é um JSON válido).
+        // DADOS DE TESTE (MOCK)
         const mockReceitaData = {
             "paciente": "João da Silva",
             "receita": [
@@ -147,16 +146,13 @@
             ]
         };
 
-        // Função chamada quando o scan dá certo
         function onScanSuccess(decodedText, decodedResult) {
             scanFeedback.innerText = "Sucesso! Processando...";
             scanFeedback.className = "text-success fw-bold";
             
             html5QrCode.stop().then(() => {
-                // Para a demo, usamos os dados de teste (mock)
                 localStorage.setItem('receitaData', JSON.stringify(mockReceitaData));
                 window.location.href = 'receita.html';
-
             }).catch(err => {
                 console.warn("Erro ao parar a câmera, mas seguimos em frente.", err);
                 localStorage.setItem('receitaData', JSON.stringify(mockReceitaData));
@@ -164,11 +160,8 @@
             });
         }
 
-        function onScanFailure(error) {
-            // não faz nada
-        }
+        function onScanFailure(error) { /* não faz nada */ }
 
-        // Quando o botão de escanear é clicado
         btnStartScan.addEventListener('click', () => {
             btnStartScan.style.display = 'none';
             qrReaderDiv.style.display = 'block';
