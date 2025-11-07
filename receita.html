@@ -14,12 +14,14 @@
             --chat-bubble-bot: #f1f1f1;
         }
         body {
+            /* CORREÇÃO RESPONSIVIDADE: Aumenta o tamanho da fonte base */
             font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             color: var(--text-color);
             background-color: #f8f9fa;
             margin: 0;
             padding: 0;
             overflow-x: hidden;
+            font-size: 16px; /* Garante um bom tamanho base */
         }
         header {
             background-color: #fff;
@@ -35,7 +37,7 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background-color: #000; /* Preto como no esboço */
+            background-color: #000;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -51,14 +53,12 @@
             color: var(--text-color);
         }
 
-        /* Container principal */
         .container-custom {
             max-width: 960px;
             margin: 20px auto;
             padding: 0 15px;
         }
 
-        /* Seção de Medicação */
         .medication-section {
             background-color: #fff;
             border-radius: 8px;
@@ -66,36 +66,46 @@
             padding: 20px;
             margin-bottom: 20px;
         }
+        /* CORREÇÃO RESPONSIVIDADE: Aumenta fontes */
+        .medication-section h4 {
+            font-size: 1.5rem; /* Título "Olá Fulano" maior */
+            font-weight: 700;
+        }
+        .medication-section p {
+            font-size: 1rem; /* Texto de instrução maior */
+            color: #6c757d;
+        }
+
         .medication-item {
             display: flex;
             align-items: center;
             margin-bottom: 15px;
             cursor: pointer;
-            padding: 10px;
+            padding: 15px; /* Mais preenchimento */
             border-radius: 8px;
             transition: background-color 0.2s;
+            border: 1px solid #eee;
         }
         .medication-item:last-child {
             margin-bottom: 0;
         }
-        /* Destaque do item selecionado */
         .medication-item.selected {
-            background-color: #e2f0fe; /* Azul claro */
+            background-color: #e2f0fe;
+            border-color: var(--primary-color);
         }
         
-        /* Checkbox customizado (círculo) */
         .medication-item input[type="radio"] {
             -webkit-appearance: none;
             -moz-appearance: none;
             appearance: none;
             border: 2px solid #333;
             border-radius: 50%;
-            width: 25px;
-            height: 25px;
+            width: 30px; /* Checkbox maior */
+            height: 30px; /* Checkbox maior */
             outline: none;
             transition: all 0.2s ease-in-out;
             margin-right: 15px;
-            flex-shrink: 0; /* Não encolher */
+            flex-shrink: 0;
         }
         .medication-item input[type="radio"]:checked {
             background-color: #000;
@@ -103,41 +113,46 @@
             position: relative;
         }
         .medication-item input[type="radio"]:checked::after {
-            content: "\f26b"; /* Ícone de check do Bootstrap */
+            content: "\f26b";
             font-family: "bootstrap-icons";
             color: white;
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 14px;
+            font-size: 16px; /* Ícone maior */
         }
+        /* CORREÇÃO RESPONSIVIDADE: Aumenta fontes */
         .medication-details h5 {
-            font-size: 1.1em;
-            font-weight: bold;
-            margin-bottom: 2px;
+            font-size: 1.25rem; /* Nome do remédio maior */
+            font-weight: 700;
+            margin-bottom: 4px;
         }
         .medication-details p {
             margin-bottom: 0;
-            font-size: 0.9em;
+            font-size: 1rem; /* Posologia maior */
+            color: var(--text-color);
+        }
+        .medication-details p.small {
+            font-size: 0.9rem; /* Dias restantes */
             color: #6c757d;
         }
 
         /* Seção do Chat */
         .chat-section {
             background-color: #fff;
-            border: 1px solid #000; /* Borda preta como no esboço */
+            border: 1px solid #000;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            height: 500px; /* Altura fixa */
+            height: 500px;
             display: flex;
             flex-direction: column;
-            overflow: hidden; /* Para o input ficar fixo */
+            overflow: hidden;
         }
         .chat-header {
             padding: 15px 20px 10px 20px;
             font-weight: bold;
-            font-size: 1rem;
+            font-size: 1rem; /* Tamanho bom */
             color: var(--text-color);
             border-bottom: 1px solid #eee;
         }
@@ -148,13 +163,14 @@
             display: flex;
             flex-direction: column;
         }
+        /* CORREÇÃO RESPONSIVIDADE: Aumenta fontes */
         .chat-bubble {
-            padding: 10px 15px;
+            padding: 12px 18px; /* Mais preenchimento */
             border-radius: 18px;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             max-width: 85%;
             word-wrap: break-word;
-            font-size: 0.9em;
+            font-size: 1rem; /* Chat maior */
         }
         .chat-bubble-bot {
             background-color: var(--chat-bubble-bot);
@@ -166,20 +182,18 @@
             align-self: flex-end;
             border-bottom-right-radius: 5px;
         }
-
-        /* Input do Chat como no esboço */
         .chat-input-area {
             display: flex;
             align-items: center;
             padding: 15px;
-            border-top: 1px solid #000; /* Linha preta acima do input */
+            border-top: 1px solid #000;
         }
         .chat-input-area input {
             flex-grow: 1;
-            border: none; /* Sem borda, como no esboço */
+            border: none;
             padding: 8px 0;
             outline: none;
-            font-size: 0.9em;
+            font-size: 1rem; /* Input maior */
             background: transparent;
         }
         .chat-input-area .btn-send {
@@ -225,7 +239,7 @@
     <div class="container-custom">
         <div class="medication-section">
             <h4 class="mb-3">Olá <span id="nome-paciente" class="text-primary">Fulano</span>!</h4>
-            <p class="mb-4 text-muted small">Aqui está sua bula digital, sempre que der a hora de consumir as medicações enviaremos uma notificação, marque a caixinha correspondente ao remédio sempre que tomá-lo</p>
+            <p class="mb-4">Aqui está sua bula digital, sempre que der a hora de consumir as medicações enviaremos uma notificação, marque a caixinha correspondente ao remédio sempre que tomá-lo</p>
             
             <div id="lista-remedios">
                 </div>
@@ -245,7 +259,8 @@
             <div class="chat-input-area">
                 <input type="text" id="chat-input" placeholder="digite sua mensagem">
                 <button class="btn-send" id="btn-send-message">
-                    <i class="bi bi-check-lg"></i> </button>
+                    <i class="bi bi-check-lg"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -261,28 +276,28 @@
         let fullReceitaData = null;
 
         // --- BANCO DE DADOS DE BULAS (IA) ---
-        // Agora com os remédios do seu esboço
+        // CORRIGIDO: Chaves da IA batem com os nomes do JSON ("Dipirona 500mg", etc.)
         const bulaData = {
-            "dipirona": {
-                "nome": "Dipirona",
+            "dipirona 500mg": {
+                "nome": "Dipirona 500mg",
                 "para_que_serve": "É um analgésico e antitérmico, usado para aliviar dores e baixar a febre.",
                 "efeitos_colaterais": "Os efeitos mais comuns incluem reações alérgicas (vermelhidão, coceira), queda da pressão e, raramente, reações graves no sangue. Náuseas são possíveis.",
                 "esqueci_dose": "Tome assim que lembrar, mas não dobre a próxima dose para compensar.",
                 "alcool": "Não é recomendado consumir álcool, pois pode intensificar os efeitos colaterais e sobrecarregar o fígado."
             },
-            "ibuprofeno": {
-                "nome": "Ibuprofeno",
-                "para_que_serve": "É um anti-inflamatório não esteroide (AINE) usado para dor, febre e inflamação.",
-                "efeitos_colaterais": "Pode causar dor de estômago, náuseas e azia. Em uso prolongado, pode afetar rins ou estômago. Não use se tiver alergia a AINEs.",
-                "esqueci_dose": "Tome a dose esquecida assim que lembrar, mas se estiver perto da próxima, pule a esquecida. Não tome duas doses juntas.",
-                "alcool": "Evite o consumo de álcool. A mistura aumenta o risco de irritação e sangramento no estômago."
+            "amoxicilina 250mg": {
+                "nome": "Amoxicilina 250mg",
+                "para_que_serve": "É um antibiótico usado para tratar infecções bacterianas, como infecções de ouvido, garganta e pele.",
+                "efeitos_colaterais": "Pode causar diarreia, náuseas e erupções cutâneas. Reações alérgicas graves são raras, mas requerem atenção imediata.",
+                "esqueci_dose": "Tome a dose esquecida assim que lembrar, a menos que esteja muito perto da próxima. Nesse caso, pule a dose esquecida. Nunca tome duas doses.",
+                "alcool": "É prudente evitar álcool. Pode aumentar o risco de efeitos colaterais como náuseas e sobrecarregar o fígado."
             },
-            "clonazepam": {
-                "nome": "Clonazepam",
-                "para_que_serve": "É um ansiolítico e anticonvulsivante, usado para tratar ansiedade, pânico e epilepsia.",
-                "efeitos_colaterais": "Sonolência, tontura, fadiga e dificuldade de coordenação são muito comuns. Pode causar dependência.",
-                "esqueci_dose": "Tome assim que lembrar, mas NUNCA dobre a dose. Se esqueceu, consulte seu médico. Não pare de tomar de repente.",
-                "alcool": "É **EXTREMAMENTE PERIGOSO** misturar com álcool. A mistura pode causar sonolência grave, parada respiratória, coma e até a morte. **NÃO BEBA ÁLCOOL**."
+            "repouso": {
+                "nome": "Repouso",
+                "para_que_serve": "O repouso é indicado para permitir que seu corpo se recupere de uma condição médica, cirurgia ou lesão.",
+                "efeitos_colaterais": "Ficar muito tempo na mesma posição pode causar desconforto. Tente mudar de posição gentilmente, se permitido.",
+                "esqueci_dose": "Repouso não é uma 'dose', mas um estado. Tente seguir a orientação médica sobre o nível de atividade permitido.",
+                "alcool": "O álcool pode prejudicar a recuperação, interferir no sono e interagir com outros medicamentos. É melhor evitar."
             }
         };
 
@@ -294,7 +309,8 @@
             data.receita.forEach(item => {
                 const remedioItemDiv = document.createElement('div');
                 remedioItemDiv.className = 'medication-item';
-                // Usamos o 'name' do radio para criar um grupo (só um pode ser selecionado)
+                
+                // CORREÇÃO DADOS DINÂMICOS: Agora usa item.posologia e item.dias
                 remedioItemDiv.innerHTML = `
                     <input type="radio" id="med-${item.id}" name="medication-select">
                     <label for="med-${item.id}" class="medication-details w-100">
@@ -305,17 +321,11 @@
                 `;
                 listaRemediosDiv.appendChild(remedioItemDiv);
 
-                // Adiciona o evento de clique para o item
                 remedioItemDiv.addEventListener('click', () => {
-                    // Remove a classe 'selected' de todos
                     document.querySelectorAll('.medication-item').forEach(el => el.classList.remove('selected'));
-                    // Adiciona 'selected' ao item clicado
                     remedioItemDiv.classList.add('selected');
-
-                    // Marca o radio button (já que o clique é no div)
                     remedioItemDiv.querySelector('input[type="radio"]').checked = true;
 
-                    // Define o contexto do chat
                     currentRemedioContext = item.remedio;
                     displayBotMessage(`Olá! Você selecionou <strong>${item.remedio}</strong>. Como posso ajudar com este medicamento?`);
                 });
@@ -326,16 +336,14 @@
         function displayMessage(text, isUser) {
             const bubble = document.createElement('div');
             bubble.className = `chat-bubble ${isUser ? 'chat-bubble-user' : 'chat-bubble-bot'}`;
-            bubble.innerHTML = text; // innerHTML para renderizar o <strong>
+            bubble.innerHTML = text;
             chatMessagesDiv.appendChild(bubble);
             chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
         }
 
         function displayBotMessage(text) {
-            // Remove qualquer mensagem anterior "Digitando..."
             const typing = document.getElementById('typing-indicator');
             if (typing) typing.remove();
-            
             displayMessage(text, false);
         }
 
@@ -344,13 +352,11 @@
         }
 
         function simulateTyping() {
-            // Garante que só haja um "Digitando..."
             if (document.getElementById('typing-indicator')) return;
-            
             const typingIndicator = document.createElement('div');
             typingIndicator.className = 'chat-bubble chat-bubble-bot';
             typingIndicator.id = 'typing-indicator';
-            typingIndicator.innerHTML = '<i class="bi bi-three-dots"></i>'; // "Digitando..."
+            typingIndicator.innerHTML = '<i class="bi bi-three-dots"></i>';
             chatMessagesDiv.appendChild(typingIndicator);
             chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
         }
@@ -371,7 +377,7 @@
             setTimeout(() => {
                 const botResponse = generateBotResponse(messageText, currentRemedioContext);
                 displayBotMessage(botResponse);
-            }, 1500); // 1.5s de delay
+            }, 1500);
         }
 
         function generateBotResponse(userMessage, remedioNome) {
@@ -381,6 +387,7 @@
                 return "Por favor, clique em um remédio da lista ao lado para que eu possa te ajudar com dúvidas específicas.";
             }
 
+            // CORRIGIDO: A chave da IA é o nome do remédio em minúsculo
             const remedioKey = remedioNome.toLowerCase();
             const infoBula = bulaData[remedioKey];
 
@@ -428,7 +435,6 @@
                 fullReceitaData = JSON.parse(storedReceita);
                 renderReceita(fullReceitaData);
             } else {
-                // Se não houver dados, exibe um erro
                 nomePacienteSpan.innerText = "Visitante";
                 listaRemediosDiv.innerHTML = "<p class='text-danger'>Nenhuma receita encontrada. Por favor, escaneie o QR Code na tela inicial.</p>";
             }

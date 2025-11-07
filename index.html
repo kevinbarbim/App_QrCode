@@ -34,7 +34,7 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background-color: #000; /* Logo preta como no esboço */
+            background-color: #000;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -67,7 +67,7 @@
             min-height: 250px;
             background: #eee;
             width: 100%;
-            display: none; /* Começa escondido */
+            display: none;
         }
         #qr-reader video {
             width: 100% !important;
@@ -78,7 +78,7 @@
             display: none !important;
         }
         #scan-feedback {
-            display: none; /* Começa escondido */
+            display: none;
         }
         #btn-start-scan {
             animation: pulse 1.5s infinite;
@@ -120,28 +120,29 @@
         const html5QrCode = new Html5Qrcode("qr-reader");
 
         // --- DADOS DE TESTE (MOCK) ---
-        // Estes são os dados que vamos "fingir" que lemos do QR Code.
-        // Eles batem 100% com o seu esboço e com a IA do 'receita.html'.
+        // CORRIGIDO: Este JSON agora bate 100% com o que você pediu (e é um JSON válido).
         const mockReceitaData = {
-            "paciente": "Fulano",
+            "paciente": "João da Silva",
             "receita": [
                 {
-                    "id": 1, 
-                    "remedio": "Dipirona", 
-                    "posologia": "tomar daqui X horas", 
-                    "dias": 7
+                    "id": 1,
+                    "remedio": "Dipirona 500mg",
+                    "posologia": "1 comprimido a cada 6 horas",
+                    "dias": 3,
+                    "acadaquantashorastomar": 6
                 },
                 {
-                    "id": 2, 
-                    "remedio": "Ibuprofeno", 
-                    "posologia": "tomar daqui X horas", 
-                    "dias": 7
+                    "id": 2,
+                    "remedio": "Amoxicilina 250mg",
+                    "posologia": "1 cápsula a cada 8 horas",
+                    "dias": 7,
+                    "acadaquantashorastomar": 8
                 },
                 {
-                    "id": 3, 
-                    "remedio": "Clonazepam", 
-                    "posologia": "tomar daqui X horas", 
-                    "dias": 7
+                    "id": 3,
+                    "remedio": "Repouso",
+                    "posologia": "Repouso absoluto por 2 dias",
+                    "dias": 2
                 }
             ]
         };
@@ -152,44 +153,37 @@
             scanFeedback.className = "text-success fw-bold";
             
             html5QrCode.stop().then(() => {
-                // Para a demo, vamos IGNORAR o 'decodedText' e usar nossos dados de teste.
-                // Isso garante que a demo funcione com QUALQUER QR code.
+                // Para a demo, usamos os dados de teste (mock)
                 localStorage.setItem('receitaData', JSON.stringify(mockReceitaData));
-                
-                // Redireciona para a tela de resultados
                 window.location.href = 'receita.html';
 
             }).catch(err => {
                 console.warn("Erro ao parar a câmera, mas seguimos em frente.", err);
-                // Mesmo se falhar ao parar, tenta salvar e redirecionar
                 localStorage.setItem('receitaData', JSON.stringify(mockReceitaData));
                 window.location.href = 'receita.html';
             });
         }
 
         function onScanFailure(error) {
-            // não faz nada, só continua tentando
+            // não faz nada
         }
 
         // Quando o botão de escanear é clicado
         btnStartScan.addEventListener('click', () => {
-            // Esconde o botão e mostra a câmera
             btnStartScan.style.display = 'none';
             qrReaderDiv.style.display = 'block';
             scanFeedback.style.display = 'block';
             scanFeedback.innerText = "Centralizando o QR Code...";
             scanFeedback.className = "text-muted small mt-2";
             
-            // Inicia a câmera
             html5QrCode.start(
-                { facingMode: "environment" }, // Câmera traseira
+                { facingMode: "environment" },
                 { fps: 10, qrbox: { width: 250, height: 250 } },
-                onScanSuccess,  // O que fazer se der certo
-                onScanFailure   // O que fazer se falhar (nada)
+                onScanSuccess,
+                onScanFailure
             ).catch(err => {
                 console.error("Erro ao iniciar a câmera:", err);
                 alert("Não foi possível acessar a câmera. Você deu permissão no navegador?");
-                // Mostra o botão de novo se der erro
                 btnStartScan.style.display = 'block';
                 qrReaderDiv.style.display = 'none';
                 scanFeedback.style.display = 'none';
