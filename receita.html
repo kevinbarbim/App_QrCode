@@ -32,21 +32,23 @@
             top: 0;
             z-index: 1000;
         }
-    header .logo {
+        header .logo {
             width: 40px;
             height: 40px;
+            border-radius: 50%;
+            background-color: #f0f0f0;
             display: flex;
             align-items: center;
             justify-content: center;
             margin-right: 10px;
-           
-         
+            border: 1px solid #000;
+            overflow: hidden;
         }
         header .logo img {
-            width: 100%;   /* A imagem ocupa 100% da largura do contêiner */
-            height: 100%;  /* A imagem ocupa 100% da altura do contêiner */
-           
-            display: block; /* Remove possíveis espaços extras da imagem */
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
         }
         header .app-title {
             font-size: 1.2em;
@@ -135,6 +137,23 @@
             font-size: 0.9rem;
             color: #6c757d;
         }
+        
+        /* NOVO: Estilo para o item de instrução (Repouso) */
+        .instruction-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background-color: #f8f9fa; /* Fundo cinza claro */
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+        .instruction-item .icon {
+            font-size: 1.8rem; /* Ícone maior */
+            color: var(--primary-color);
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
         .chat-section {
             background-color: #fff;
             border: 1px solid #000;
@@ -225,8 +244,8 @@
 
     <header>
         <div class="logo">
-    <img src="logo.png" alt="Logo Conecta Saúde">
-</div>
+            <img src="logo.png" alt="Logo Conecta Saúde">
+        </div>
         <span class="app-title">Conecta Saúde</span>
     </header>
 
@@ -236,6 +255,9 @@
             <p class="mb-4">Aqui está sua bula digital, sempre que der a hora de consumir as medicações enviaremos uma notificação, marque a caixinha correspondente ao remédio sempre que tomá-lo</p>
             
             <div id="lista-remedios">
+                </div>
+
+            <div id="lista-instrucoes" class="mt-4">
                 </div>
         </div>
 
@@ -251,7 +273,7 @@
             </div>
 
             <div class="chat-input-area">
-                <input type="text" id="chat-input" placeholder="Digite sua mensagem">
+                <input type="text" id="chat-input" placeholder="digite sua mensagem">
                 <button class="btn-send" id="btn-send-message">
                     <i class="bi bi-check-lg"></i>
                 </button>
@@ -262,6 +284,7 @@
     <script>
         const nomePacienteSpan = document.getElementById('nome-paciente');
         const listaRemediosDiv = document.getElementById('lista-remedios');
+        const listaInstrucoesDiv = document.getElementById('lista-instrucoes'); // NOVO
         const chatMessagesDiv = document.getElementById('chat-messages');
         const chatInput = document.getElementById('chat-input');
         const btnSendMessage = document.getElementById('btn-send-message');
@@ -285,42 +308,61 @@
                 "esqueci_dose": "Tome a dose esquecida assim que lembrar, a menos que esteja muito perto da próxima. Nesse caso, pule a dose esquecida. Nunca tome duas doses.",
                 "alcool": "É prudente evitar álcool. Pode aumentar o risco de efeitos colaterais como náuseas e sobrecarregar o fígado."
             },
-            "repouso": {
-                "nome": "Repouso",
-                "para_que_serve": "O repouso é indicado para permitir que seu corpo se recupere de uma condição médica, cirurgia ou lesão.",
-                "efeitos_colaterais": "Ficar muito tempo na mesma posição pode causar desconforto. Tente mudar de posição gentilmente, se permitido.",
-                "esqueci_dose": "Repouso não é uma 'dose', mas um estado. Tente seguir a orientação médica sobre o nível de atividade permitido.",
-                "alcool": "O álcool pode prejudicar a recuperação, interferir no sono e interagir com outros medicamentos. É melhor evitar."
-            }
+            // Repouso não precisa mais da IA, pois não será clicável
         };
 
-        // --- Função para Renderizar a Lista de Remédios ---
+        // --- Função para Renderizar a Lista de Remédios (CORRIGIDA) ---
         function renderReceita(data) {
             nomePacienteSpan.innerText = data.paciente;
             listaRemediosDiv.innerHTML = "";
+            listaInstrucoesDiv.innerHTML = ""; // Limpa a nova lista também
 
             data.receita.forEach(item => {
-                const remedioItemDiv = document.createElement('div');
-                remedioItemDiv.className = 'medication-item';
                 
-                remedioItemDiv.innerHTML = `
-                    <input type="radio" id="med-${item.id}" name="medication-select">
-                    <label for="med-${item.id}" class="medication-details w-100">
-                        <h5>${item.remedio}</h5>
-                        <p>${item.posologia}</p>
-                        <p class="small text-muted">${item.dias} dias restantes</p>
-                    </label>
-                `;
-                listaRemediosDiv.appendChild(remedioItemDiv);
+                // VERIFICA SE É "REPOUSO" (ou outra palavra-chave de instrução)
+                if (item.remedio.toLowerCase().includes('repouso')) {
+                    
+                    // É Repouso: Renderiza como um item de instrução (estático)
+                    const instrucaoDiv = document.createElement('div');
+                    instrucaoDiv.className = 'instruction-item';
+                    
+                    // Ícone de "cama" (Bootstrap Icons)
+                    instrucaoDiv.innerHTML = `
+                        <i class="bi bi-person-check-fill icon"></i>
+                        <div class="medication-details w-100">
+                            <h5>${item.remedio}</h5>
+                            <p>${item.posologia}</p>
+                            <p class="small text-muted">${item.dias} dias restantes</p>
+                        </div>
+                    `;
+                    listaInstrucoesDiv.appendChild(instrucaoDiv);
 
-                remedioItemDiv.addEventListener('click', () => {
-                    document.querySelectorAll('.medication-item').forEach(el => el.classList.remove('selected'));
-                    remedioItemDiv.classList.add('selected');
-                    remedioItemDiv.querySelector('input[type="radio"]').checked = true;
+                } else {
+                    
+                    // É um Medicamento: Renderiza como item clicável
+                    const remedioItemDiv = document.createElement('div');
+                    remedioItemDiv.className = 'medication-item';
+                    
+                    remedioItemDiv.innerHTML = `
+                        <input type="radio" id="med-${item.id}" name="medication-select">
+                        <label for="med-${item.id}" class="medication-details w-100">
+                            <h5>${item.remedio}</h5>
+                            <p>${item.posologia}</p>
+                            <p class="small text-muted">${item.dias} dias restantes</p>
+                        </label>
+                    `;
+                    listaRemediosDiv.appendChild(remedioItemDiv);
 
-                    currentRemedioContext = item.remedio;
-                    displayBotMessage(`Olá! Você selecionou <strong>${item.remedio}</strong>. Como posso ajudar com este medicamento?`);
-                });
+                    // Adiciona o listener APENAS para medicamentos
+                    remedioItemDiv.addEventListener('click', () => {
+                        document.querySelectorAll('.medication-item').forEach(el => el.classList.remove('selected'));
+                        remedioItemDiv.classList.add('selected');
+                        remedioItemDiv.querySelector('input[type="radio"]').checked = true;
+
+                        currentRemedioContext = item.remedio;
+                        displayBotMessage(`Olá! Você selecionou <strong>${item.remedio}</strong>. Como posso ajudar com este medicamento?`);
+                    });
+                }
             });
         }
 
@@ -372,37 +414,35 @@
             }, 1500);
         }
 
-        // --- FUNÇÃO CENTRAL DA "IA" (CORRIGIDA) ---
+        // --- FUNÇÃO CENTRAL DA "IA" ---
         function generateBotResponse(userMessage, remedioNome) {
             const userMessageLower = userMessage.toLowerCase();
             
             if (!remedioNome) {
-                return "Por favor, clique em um remédio da lista ao lado para que eu possa te ajudar com dúvidas específicas.";
+                return "Por favor, clique em um remédio da lista para que eu possa te ajudar com dúvidas específicas.";
             }
 
             const remedioKey = remedioNome.toLowerCase();
             const infoBula = bulaData[remedioKey];
 
             if (!infoBula) {
-                return `Desculpe, não tenho informações sobre "${remedioNome}". Por favor, selecione outro remédio.`;
+                // Se não achar na IA (ex: clicou em Repouso, embora não deva ser possível)
+                return `Desculpe, não tenho informações de IA para "${remedioNome}". Por favor, selecione um medicamento.`;
             }
 
-            // --- Lógica da IA (com mais inputs) ---
+            // Lógica da IA (com inputs sem acento)
             if (userMessageLower.includes('efeitos colaterais') || userMessageLower.includes('efeitos') || userMessageLower.includes('mal')) {
                 return `Para <strong>${infoBula.nome}</strong>: ${infoBula.efeitos_colaterais}`;
             } 
             if (userMessageLower.includes('esqueci') || (userMessageLower.includes('dose') && userMessageLower.includes('esqueci'))) {
                 return `Para <strong>${infoBula.nome}</strong>: ${infoBula.esqueci_dose}`;
             }
-            // CORRIGIDO: Adicionado "alcool" sem acento
             if (userMessageLower.includes('álcool') || userMessageLower.includes('alcool') || userMessageLower.includes('beber') || userMessageLower.includes('bebida')) {
                 return `Para <strong>${infoBula.nome}</strong>: ${infoBula.alcool}`;
             }
-            // CORRIGIDO: Adicionado "funcao" sem acento
             if (userMessageLower.includes('para que serve') || userMessageLower.includes('função') || userMessageLower.includes('funcao') || userMessageLower.includes('uso')) {
                 return `Para <strong>${infoBula.nome}</strong>: ${infoBula.para_que_serve}`;
             }
-             // CORRIGIDO: Adicionado "duvidas" sem acento
             if (userMessageLower.includes('dúvidas') || userMessageLower.includes('duvidas') || userMessageLower.includes('outras')) {
                 if (infoBula.outras_duvidas) {
                     return `Para <strong>${infoBula.nome}</strong>: ${infoBula.outras_duvidas}`;
@@ -416,7 +456,6 @@
             if (userMessageLower.includes('obrigado') || userMessageLower.includes('valeu')) {
                 return `De nada! Se tiver mais alguma dúvida, é só perguntar.`;
             }
-            // CORRIGIDO: Adicionado "posologia" sem acento
             if (userMessageLower.includes('posologia') || userMessageLower.includes('como tomar')) {
                  if (fullReceitaData && fullReceitaData.receita) {
                     const remedioDaReceita = fullReceitaData.receita.find(r => r.remedio.toLowerCase() === remedioKey);
