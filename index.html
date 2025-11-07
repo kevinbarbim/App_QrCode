@@ -5,88 +5,230 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <title>Guardião da Alta</title>
+    <title>Conecta Saúde</title>
     <style>
-        /* CSS simples para o balão de chat */
+        :root {
+            --primary-color: #007bff; /* Azul padrão do Bootstrap */
+            --secondary-color: #6c757d; /* Cinza */
+            --background-light: #f8f9fa; /* Fundo claro */
+            --text-color: #343a40; /* Texto escuro */
+            --chat-bubble-user: #e2f0fe; /* Azul claro para o usuário */
+            --chat-bubble-bot: #f1f1f1; /* Cinza claro para o bot */
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            color: var(--text-color);
+            background-color: var(--background-light);
+            overflow-x: hidden; /* Evita scroll horizontal em transições */
+        }
+
+        /* Classes de animação */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .pulse-effect {
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
         .chat-bubble {
-            background-color: #f1f1f1;
-            padding: 10px 15px;
+            padding: 12px 18px;
             border-radius: 20px;
             margin-bottom: 10px;
             max-width: 80%;
+            word-wrap: break-word; /* Garante que o texto quebre */
+        }
+        .chat-bubble-bot {
+            background-color: var(--chat-bubble-bot);
             align-self: flex-start;
+            border-bottom-left-radius: 5px;
+        }
+        .chat-bubble-user {
+            background-color: var(--chat-bubble-user);
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+
+        .chat-container {
+            max-height: calc(100vh - 200px); /* Altura fixa para o chat */
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 10px; /* Espaço para o input */
+        }
+        .chat-input-area {
+            position: sticky;
+            bottom: 0;
+            background-color: var(--background-light);
+            padding: 10px 0;
+            border-top: 1px solid #dee2e6;
+        }
+
+        /* Ajustes para o QR Reader */
+        #qr-reader {
+            max-width: 300px; /* Tamanho mais amigável em mobile */
+            margin-left: auto;
+            margin-right: auto;
+            border: 2px solid var(--primary-color);
+            border-radius: 10px;
+            overflow: hidden; /* Para garantir que o vídeo não escape */
+        }
+        #qr-reader__dashboard {
+            display: none !important; /* Esconde o painel de controle do html5-qrcode */
+        }
+        
+        /* Layout de header */
+        header {
+            background-color: #fff;
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        header .logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.8em;
+            margin-right: 10px;
+        }
+        header .app-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        /* Remédio Item */
+        .remedio-item {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            padding: 15px;
+            background-color: #fff;
+            transition: all 0.2s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: var(--text-color);
+            text-decoration: none;
+        }
+        .remedio-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            background-color: #f0f8ff; /* Leve azul ao passar o mouse */
+        }
+        .remedio-item input[type="checkbox"] {
+            transform: scale(1.5); /* Checkbox maior */
+            margin-right: 15px;
+        }
+        .remedio-item .bi-check-circle-fill {
+            color: var(--primary-color);
+            font-size: 1.8em;
+        }
+        .remedio-item .bi-question-circle-fill {
+            font-size: 1.8em;
+            color: var(--secondary-color);
         }
     </style>
 </head>
 <body class="bg-light">
 
-    <div id="view-welcome" class="container text-center p-5 vh-100 d-flex flex-column justify-content-center">
-        <h1 class="mt-3">Guardião da Alta</h1>
-        <p class="lead">Cuidando da sua recuperação em casa.</p>
-        <p>Aponte a câmera para o QR Code da sua receita de alta para começar.</p>
-        <button id="btn-start-scan" class="btn btn-primary btn-lg mt-3">
-            <i class="bi bi-qr-code-scan"></i> Escanear QR Code
+    <header>
+        <div class="d-flex align-items-center">
+            <div class="logo">CS</div>
+            <span class="app-title">Conecta Saúde</span>
+        </div>
+        </header>
+
+    <div id="view-welcome" class="container text-center p-4 vh-100 d-flex flex-column justify-content-center fade-in">
+        <h1 class="display-5 fw-bold mb-4">Cuidando da sua recuperação em casa.</h1>
+        <p class="lead mb-4">Aponte a câmera para o QR Code da sua receita de alta para começar.</p>
+        <button id="btn-start-scan" class="btn btn-primary btn-lg pulse-effect">
+            <i class="bi bi-qr-code-scan me-2"></i> Escanear QR Code
         </button>
         
-        <div id="qr-reader" style="width: 100%; margin-top: 20px; display: none;"></div>
-        <p id="scan-feedback" class="text-muted small mt-2" style="display: none;">Centralizando o QR Code...</p>
+        <div id="qr-reader" class="mt-4" style="display: none;"></div>
+        <p id="scan-feedback" class="text-muted small mt-3" style="display: none;">Centralizando o QR Code...</p>
     </div>
 
-    <div id="view-receita" class="container p-3" style="display: none;">
+    <div id="view-receita" class="container p-3 fade-in" style="display: none;">
         <h2 class="mb-3">Olá, <span id="nome-paciente" class="text-primary"></span>!</h2>
-        <p>Sua prescrição está pronta. Toque em um remédio para tirar dúvidas.</p>
+        <p class="text-muted">Sua prescrição está pronta. Marque os itens concluídos e toque para tirar dúvidas.</p>
         
-        <div id="lista-remedios" class="list-group">
+        <div id="lista-remedios" class="d-flex flex-column gap-2">
             </div>
 
         <div class="d-grid gap-2 mt-4">
             <button id="btn-panico" class="btn btn-danger btn-lg">
-                <i class="bi bi-exclamation-triangle-fill"></i> Não estou me sentindo bem
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> Não estou me sentindo bem
             </button>
         </div>
     </div>
 
-    <div id="view-chat" class="container p-3" style="display: none;">
-        <nav class="mb-3">
-            <button id="btn-chat-voltar" class="btn btn-outline-secondary btn-sm">
-                <i class="bi bi-arrow-left"></i> Voltar para Receita
+    <div id="view-chat" class="container d-flex flex-column vh-100 p-0 fade-in" style="display: none;">
+        <div class="d-flex align-items-center p-3 border-bottom bg-white sticky-top">
+            <button id="btn-chat-voltar" class="btn btn-outline-secondary me-3">
+                <i class="bi bi-arrow-left"></i>
             </button>
-        </nav>
+            <h5 class="m-0">BulaBot Assistente</h5>
+        </div>
         
-        <h2 class="mb-3">BulaBot Assistente</h2>
-        <p>Tirando dúvidas sobre: <strong id="chat-remedio-nome" class="text-primary"></strong></p>
-        
-        <div class="d-flex flex-column">
-            <div class="chat-bubble">
-                Olá! Vi que você quer saber mais sobre <span id="chat-remedio-nome-2"></span>.
-                Como posso ajudar?
+        <div class="chat-container p-3 flex-grow-1">
+            <div class="chat-bubble chat-bubble-bot">
+                Olá! Sou seu assistente para dúvidas sobre: <strong id="chat-remedio-nome" class="text-primary"></strong>. Como posso ajudar?
             </div>
             
-            <div id="chat-perguntas" class="d-grid gap-2 mt-3">
-                <button class="btn btn-outline-primary" onclick="mostrarResposta('efeitos')">
-                    Quais os principais efeitos colaterais?
-                </button>
-                <button class="btn btn-outline-primary" onclick="mostrarResposta('esqueci')">
-                    Esqueci de tomar uma dose, e agora?
-                </button>
-                <button class="btn btn-outline-primary" onclick="mostrarResposta('posso_beber')">
-                    Posso beber álcool durante o tratamento?
-                </button>
-            </div>
-            
-            <div id="chat-respostas" class="mt-3">
-                <div id="resp-efeitos" style="display: none;">
+            <div id="chat-predefined-responses" class="mt-2">
+                <div id="resp-efeitos" class="chat-bubble chat-bubble-bot" style="display: none;">
                     <strong>Efeitos Colaterais:</strong><br>
-                    Os efeitos mais comuns para a Dipirona incluem reações alérgicas, queda da pressão e, raramente, reações na pele. Náuseas são possíveis. Se sentir algo grave, aperte o botão de pânico.
+                    Os efeitos mais comuns para este medicamento incluem reações alérgicas, queda da pressão e, raramente, reações na pele. Náuseas são possíveis. Se sentir algo grave, por favor, utilize o botão "Não estou me sentindo bem" na tela anterior.
                 </div>
-                 <div id="resp-esqueci" style="display: none;">
+                 <div id="resp-esqueci" class="chat-bubble chat-bubble-bot" style="display: none;">
                     <strong>Esqueci uma dose:</strong><br>
                     Tome a dose assim que lembrar. No entanto, se estiver quase na hora da próxima dose, pule a dose esquecida e volte ao seu horário regular. Não tome duas doses ao mesmo tempo.
                 </div>
-                 <div id="resp-posso_beber" style="display: none;">
+                 <div id="resp-posso_beber" class="chat-bubble chat-bubble-bot" style="display: none;">
                     <strong>Sobre Álcool:</strong><br>
-                    Para este medicamento (Amoxicilina), não é recomendado o consumo de álcool, pois pode aumentar o risco de efeitos colaterais e sobrecarregar o fígado.
+                    Para a maioria dos medicamentos, não é recomendado o consumo de álcool, pois pode aumentar o risco de efeitos colaterais e sobrecarregar o fígado. Consulte sempre seu médico.
                 </div>
+                <div id="resp-generica" class="chat-bubble chat-bubble-bot" style="display: none;">
+                    Desculpe, não entendi sua pergunta. Poderia reformular? Ou selecione uma das opções abaixo.
+                </div>
+            </div>
+
+            <div id="typing-indicator" class="chat-bubble chat-bubble-bot" style="display: none;">
+                Digitando...
+            </div>
+        </div>
+
+        <div class="chat-input-area p-3 bg-white">
+            <div class="input-group">
+                <input type="text" id="chat-input" class="form-control rounded-pill" placeholder="Pergunte sobre o remédio..." aria-label="Pergunte sobre o remédio...">
+                <button class="btn btn-primary rounded-pill ms-2" type="button" id="btn-send-message">
+                    <i class="bi bi-send-fill"></i>
+                </button>
+            </div>
+            <div id="chat-sugestoes" class="d-flex flex-wrap gap-2 mt-2 justify-content-center">
+                 <button class="btn btn-sm btn-outline-primary" onclick="enviarPerguntaSugestao('Quais os efeitos colaterais?')">Efeitos?</button>
+                 <button class="btn btn-sm btn-outline-primary" onclick="enviarPerguntaSugestao('Esqueci uma dose.')">Esqueci dose?</button>
+                 <button class="btn btn-sm btn-outline-primary" onclick="enviarPerguntaSugestao('Posso beber?')">Beber álcool?</button>
             </div>
         </div>
     </div>
@@ -95,172 +237,302 @@
     
     <script>
         // --- SEÇÃO DE REFERÊNCIAS DA DOM ---
-        const viewWelcome = document.getElementById('view-welcome');
-        const viewReceita = document.getElementById('view-receita');
-        const viewChat = document.getElementById('view-chat');
+    const viewWelcome = document.getElementById('view-welcome');
+    const viewReceita = document.getElementById('view-receita');
+    const viewChat = document.getElementById('view-chat');
+    
+    const btnStartScan = document.getElementById('btn-start-scan');
+    const qrReaderDiv = document.getElementById('qr-reader');
+    const scanFeedback = document.getElementById('scan-feedback');
+    
+    const listaRemedios = document.getElementById('lista-remedios');
+    const nomePaciente = document.getElementById('nome-paciente');
+    const btnPanico = document.getElementById('btn-panico');
+
+    const btnChatVoltar = document.getElementById('btn-chat-voltar');
+    const chatRemedioNome = document.getElementById('chat-remedio-nome');
+    const chatRemedioNome2 = document.getElementById('chat-remedio-nome-2'); // Para o balão inicial do bot
+    const chatContainer = document.querySelector('#view-chat .chat-container'); // Onde as msgs vão
+    const chatInput = document.getElementById('chat-input');
+    const btnSendMessage = document.getElementById('btn-send-message');
+    const chatPredefinedResponses = document.getElementById('chat-predefined-responses'); // Manter para a primeira saudação
+    const typingIndicator = document.getElementById('typing-indicator');
+    const chatSugestoes = document.getElementById('chat-sugestoes'); // Botões de sugestão
+
+    const html5QrCode = new Html5Qrcode("qr-reader");
+
+    let currentRemedioContext = null; // Guarda o remédio que está sendo discutido
+    let fullReceitaData = null; // Para armazenar todos os dados da receita após o scan
+
+    // --- BANCO DE DADOS DE BULAS (CONHECIMENTO ESTÁTICO) ---
+    // Você pode expandir isso para quantos remédios quiser para a demo.
+    const bulaData = {
+        "dipirona 500mg": {
+            "nome": "Dipirona 500mg",
+            "para_que_serve": "É um analgésico e antitérmico, usado para aliviar dores e baixar a febre.",
+            "efeitos_colaterais": "Os efeitos mais comuns incluem reações alérgicas (vermelhidão na pele, coceira, inchaço), queda da pressão arterial (hipotensão) e, raramente, agranulocitose (diminuição grave de glóbulos brancos). Náuseas e vômitos são possíveis, mas menos comuns.",
+            "esqueci_dose": "Se esquecer uma dose e for uma dose única para dor/febre, tome assim que lembrar. Se for um tratamento contínuo, siga a orientação médica e evite dobrar a dose. Em caso de dúvida, pergunte ao seu médico.",
+            "alcool": "Não é recomendado consumir álcool, pois pode intensificar os efeitos colaterais e sobrecarregar o fígado.",
+            "outras_duvidas": "Pode causar coloração avermelhada na urina (inofensivo). Evitar em casos de alergia a pirazolonas ou doenças da medula óssea."
+        },
+        "amoxicilina 250mg": {
+            "nome": "Amoxicilina 250mg",
+            "para_que_serve": "É um antibiótico usado para tratar infecções bacterianas, como infecções de ouvido, garganta, pele e trato urinário.",
+            "efeitos_colaterais": "Os efeitos comuns incluem diarreia, náuseas, vômitos e erupções cutâneas. Reações alérgicas mais graves (inchaço no rosto, dificuldade para respirar) são raras, mas requerem atenção médica imediata.",
+            "esqueci_dose": "Tome a dose esquecida assim que lembrar, a menos que esteja muito próximo da próxima dose (menos de 2 horas). Nesse caso, pule a dose esquecida e continue o esquema normalmente. Nunca tome duas doses para compensar.",
+            "alcool": "O consumo de álcool durante o tratamento com Amoxicilina não é diretamente contraindicado, mas pode aumentar a ocorrência de efeitos gastrointestinais como náuseas e diarreia, além de sobrecarregar o fígado. É prudente evitar.",
+            "outras_duvidas": "É importante completar todo o curso do tratamento, mesmo que se sinta melhor, para evitar a resistência bacteriana."
+        },
+        "ibuprofeno 200mg": { // Exemplo adicional
+            "nome": "Ibuprofeno 200mg",
+            "para_que_serve": "Anti-inflamatório não esteroidal (AINE) usado para dor leve a moderada, febre, inflamações e sintomas de resfriado/gripe.",
+            "efeitos_colaterais": "Náuseas, dor abdominal, má digestão (dispepsia), diarreia. Pode causar tontura ou sonolência. Em uso prolongado, pode afetar rins ou estômago. Pessoas com asma podem ter crises.",
+            "esqueci_dose": "Se for uma dose única, tome ao lembrar. Se for tratamento regular, tome a dose esquecida assim que possível, mas não tome uma dose extra para compensar. Siga o intervalo recomendado.",
+            "alcool": "Aumenta o risco de irritação gástrica e sangramento no estômago. O consumo de álcool deve ser evitado ou moderado, especialmente se você já tem problemas estomacais.",
+            "outras_duvidas": "Tomar com alimentos pode ajudar a reduzir o desconforto estomacal. Não deve ser usado por pessoas com úlceras gástricas."
+        }
+        // Adicione mais remédios aqui no mesmo formato
+    };
+
+    // --- SEÇÃO DE NAVEGAÇÃO ENTRE TELAS ---
+    function mostrarTela(telaId) {
+        // Esconde todas as telas
+        [viewWelcome, viewReceita, viewChat].forEach(v => v.style.display = 'none');
+        // Mostra a tela desejada e adiciona animação
+        const targetView = document.getElementById(telaId);
+        targetView.style.display = 'flex'; // Usar flex para vh-100 em chat
+        targetView.classList.add('fade-in');
+        setTimeout(() => targetView.classList.remove('fade-in'), 500); // Remove após a animação
+    }
+
+    // --- SEÇÃO DO LEITOR DE QR CODE ---
+    function onScanSuccess(decodedText, decodedResult) {
+        scanFeedback.innerText = "Sucesso! Processando...";
+        scanFeedback.className = "text-success fw-bold";
         
-        const btnStartScan = document.getElementById('btn-start-scan');
-        const qrReaderDiv = document.getElementById('qr-reader');
-        const scanFeedback = document.getElementById('scan-feedback');
-        
-        const listaRemedios = document.getElementById('lista-remedios');
-        const nomePaciente = document.getElementById('nome-paciente');
-        const btnPanico = document.getElementById('btn-panico');
-
-        const btnChatVoltar = document.getElementById('btn-chat-voltar');
-        const chatRemedioNome = document.getElementById('chat-remedio-nome');
-        const chatRemedioNome2 = document.getElementById('chat-remedio-nome-2');
-        const chatRespostas = document.getElementById('chat-respostas');
-
-        const html5QrCode = new Html5Qrcode("qr-reader");
-
-        // --- SEÇÃO DE NAVEGAÇÃO ENTRE TELAS ---
-        function mostrarTela(telaId) {
-            // Esconde todas as telas
-            [viewWelcome, viewReceita, viewChat].forEach(v => v.style.display = 'none');
-            // Mostra a tela desejada
-            document.getElementById(telaId).style.display = 'block';
-        }
-
-        // --- SEÇÃO DO LEITOR DE QR CODE ---
-
-        // O QUE FAZER QUANDO O SCAN FUNCIONA
-        function onScanSuccess(decodedText, decodedResult) {
-            
-            // 1. Feedback imediato
-            scanFeedback.innerText = "Sucesso! Processando...";
-            scanFeedback.className = "text-success fw-bold";
-            console.log("QR Code lido:", decodedText);
-
-            // 2. Parar a câmera
-            html5QrCode.stop().then(() => {
-                console.log("Câmera parada.");
-            }).catch(err => {
-                console.warn("Erro ao parar a câmera, mas seguimos em frente.", err);
-            }).finally(() => { 
-                // 3. TENTAR processar os dados
-                try {
-                    const data = JSON.parse(decodedText);
-                    console.log("JSON processado com sucesso:", data);
-                    
-                    // 4. Renderizar os dados na tela
-                    renderReceita(data);
-                    
-                    // 5. Mudar para a tela da receita
-                    mostrarTela('view-receita');
-
-                } catch (error) {
-                    // 6. Se deu erro no JSON.parse
-                    console.error("FALHA AO PROCESSAR O JSON!", error);
-                    scanFeedback.innerText = "Erro: Este QR Code não é uma receita válida.";
-                    scanFeedback.className = "text-danger fw-bold";
-                    
-                    // Reinicia o botão de scan
-                    btnStartScan.style.display = 'block';
-                    qrReaderDiv.style.display = 'none';
-                    // Deixamos a mensagem de erro visível
-                    scanFeedback.style.display = 'block'; 
-                }
-            });
-        }
-
-        // O QUE FAZER SE O SCAN FALHAR (pode deixar vazia)
-        function onScanFailure(error) {
-            // Apenas loga no console, não irrita o usuário
-            // console.warn(`Scan de QR code falhou: ${error}`);
-        }
-
-        // !!! ESTE É O BLOCO QUE INICIA A CÂMERA !!!
-        // O QUE FAZER QUANDO O USUÁRIO CLICA EM "ESCANEAR"
-        btnStartScan.addEventListener('click', () => {
-            qrReaderDiv.style.display = 'block'; // Mostra o leitor
-            scanFeedback.style.display = 'block'; // Mostra a msg "Centralizando..."
-            scanFeedback.innerText = "Centralizando o QR Code..."; // Reseta a msg
-            scanFeedback.className = "text-muted small mt-2"; // Reseta a cor
-            btnStartScan.style.display = 'none'; // Esconde o botão
-
-            // Configurações da câmera
-            html5QrCode.start(
-                { facingMode: "environment" }, // Pedir a câmera traseira (ótimo para mobile)
-                {
-                    fps: 10,                // Frames por segundo
-                    qrbox: { width: 250, height: 250 } // Caixa de scan
-                },
-                onScanSuccess,  // Callback de sucesso
-                onScanFailure   // Callback de falha
-            ).catch(err => {
-                // Erro ao LIGAR a câmera (ex: permissão negada)
-                console.error("Erro ao iniciar a câmera:", err);
-                alert("Não foi possível acessar a câmera. Você deu permissão no navegador?");
-                // Reseta a UI
+        html5QrCode.stop().then(() => {
+            try {
+                fullReceitaData = JSON.parse(decodedText); // Armazena os dados completos da receita
+                renderReceita(fullReceitaData);
+                mostrarTela('view-receita');
+            } catch (error) {
+                console.error("FALHA AO PROCESSAR O JSON!", error);
+                scanFeedback.innerText = "Erro: Este QR Code não é uma receita válida.";
+                scanFeedback.className = "text-danger fw-bold";
+                
                 btnStartScan.style.display = 'block';
                 qrReaderDiv.style.display = 'none';
-                scanFeedback.style.display = 'none';
-            });
+                scanFeedback.style.display = 'block'; 
+            }
+        }).catch(err => {
+            console.warn("Erro ao parar a câmera, mas seguimos em frente.", err);
+            try {
+                fullReceitaData = JSON.parse(decodedText);
+                renderReceita(fullReceitaData);
+                mostrarTela('view-receita');
+            } catch (error) {
+                console.error("FALHA AO PROCESSAR O JSON (após erro de parada de câmera)!", error);
+                scanFeedback.innerText = "Erro: Este QR Code não é uma receita válida.";
+                scanFeedback.className = "text-danger fw-bold";
+                btnStartScan.style.display = 'block';
+                qrReaderDiv.style.display = 'none';
+                scanFeedback.style.display = 'block'; 
+            }
         });
+    }
+
+    function onScanFailure(error) { /* console.warn(`Scan de QR code falhou: ${error}`); */ }
+
+    btnStartScan.addEventListener('click', () => {
+        qrReaderDiv.style.display = 'block';
+        scanFeedback.style.display = 'block';
+        scanFeedback.innerText = "Centralizando o QR Code...";
+        scanFeedback.className = "text-muted small mt-2";
+        btnStartScan.style.display = 'none';
+
+        html5QrCode.start(
+            { facingMode: "environment" },
+            { fps: 10, qrbox: { width: 250, height: 250 } },
+            onScanSuccess,
+            onScanFailure
+        ).catch(err => {
+            console.error("Erro ao iniciar a câmera:", err);
+            alert("Não foi possível acessar a câmera. Por favor, verifique as permissões do navegador.");
+            btnStartScan.style.display = 'block';
+            qrReaderDiv.style.display = 'none';
+            scanFeedback.style.display = 'none';
+        });
+    });
 
 
-        // --- SEÇÃO DA TELA DE RECEITA ---
-        function renderReceita(data) {
-            nomePaciente.innerText = data.paciente;
-            listaRemedios.innerHTML = "";
-            
-            data.receita.forEach(item => {
-                const card = document.createElement('a');
-                card.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
-                card.href = "#";
-                
-                card.dataset.remedioNome = item.remedio;
-                card.dataset.id = item.id;
+    // --- SEÇÃO DA TELA DE RECEITA ---
+    function renderReceita(data) {
+        nomePaciente.innerText = data.paciente;
+        listaRemedios.innerHTML = "";
+        
+        data.receita.forEach(item => {
+            const remedioDiv = document.createElement('div');
+            remedioDiv.className = 'remedio-item';
 
-                card.innerHTML = `
+            const checkboxId = `remedio-${item.id}`;
+            remedioDiv.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <input class="form-check-input me-3" type="checkbox" value="" id="${checkboxId}">
                     <div>
-                        <h5 class="mb-1">${item.remedio}</h5>
-                        <p class="mb-1 small">${item.posologia}</p>
-                        <small class="text-muted">Por ${item.dias} dias.</small>
+                        <h5 class="mb-0">${item.remedio}</h5>
+                        <p class="text-muted mb-0 small">${item.posologia}</p>
+                        <small class="text-secondary">Por ${item.dias} dias.</small>
                     </div>
-                    <i class="bi bi-question-circle-fill text-primary fs-3"></i> 
-                `;
-                
-                card.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    abrirChat(item.remedio);
-                });
-                
-                listaRemedios.appendChild(card);
+                </div>
+                <button class="btn btn-link p-0 text-decoration-none" data-remedio-nome="${item.remedio}">
+                    <i class="bi bi-question-circle-fill"></i>
+                </button>
+            `;
+            
+            remedioDiv.querySelector('button').addEventListener('click', (e) => {
+                e.preventDefault();
+                currentRemedioContext = item.remedio;
+                abrirChat(item.remedio);
             });
-        }
-        
-        btnPanico.addEventListener('click', () => {
-            alert('ALERTA ENVIADO! 🚨\n\nSua solicitação foi enviada à central de enfermagem. Em breve, um profissional de saúde entrará em contato.');
+
+            listaRemedios.appendChild(remedioDiv);
         });
+    }
+    
+    btnPanico.addEventListener('click', () => {
+        alert('ALERTA ENVIADO! 🚨\n\nSua solicitação foi enviada à central de enfermagem. Em breve, um profissional de saúde entrará em contato.');
+    });
 
-        // --- SEÇÃO DO BULABOT (CHAT) ---
+    // --- SEÇÃO DO BULABOT (CHAT) ---
+    btnChatVoltar.addEventListener('click', () => {
+        mostrarTela('view-receita');
+    });
+
+    function abrirChat(nomeDoRemedio) {
+        currentRemedioContext = nomeDoRemedio;
+        chatRemedioNome.innerText = nomeDoRemedio;
+        chatRemedioNome2.innerText = nomeDoRemedio;
         
-        btnChatVoltar.addEventListener('click', () => {
-            mostrarTela('view-receita');
+        // Limpa mensagens anteriores (mantém apenas a primeira saudação do bot)
+        const chatMessages = chatContainer.querySelectorAll('.chat-bubble');
+        chatMessages.forEach((msg, index) => {
+            if (index > 0) msg.remove(); // Remove tudo exceto a primeira saudação
         });
+        chatPredefinedResponses.style.display = 'none'; // Esconde as respostas pré-definidas (agora são dinâmicas)
 
-        function abrirChat(nomeDoRemedio) {
-            chatRemedioNome.innerText = nomeDoRemedio;
-            chatRemedioNome2.innerText = nomeDoRemedio;
-            
-            Array.from(chatRespostas.children).forEach(resp => resp.style.display = 'none');
-            
-            mostrarTela('view-chat');
+        // Adiciona a saudação inicial do bot específica para o remédio
+        const initialBotGreeting = document.createElement('div');
+        initialBotGreeting.className = 'chat-bubble chat-bubble-bot fade-in';
+        initialBotGreeting.innerHTML = `Olá! Sou o BulaBot. Estou aqui para tirar suas dúvidas sobre: <strong>${nomeDoRemedio}</strong>. Como posso ajudar?`;
+        // Remove o primeiro elemento fixo e substitui
+        if (chatContainer.firstElementChild) {
+            chatContainer.firstElementChild.remove();
+        }
+        chatContainer.prepend(initialBotGreeting);
+
+
+        mostrarTela('view-chat');
+        chatInput.focus();
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    // Simula o envio de mensagem
+    btnSendMessage.addEventListener('click', () => {
+        enviarPergunta(chatInput.value);
+    });
+
+    chatInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            enviarPergunta(chatInput.value);
+        }
+    });
+
+    function enviarPergunta(pergunta) {
+        if (pergunta.trim() === '') return;
+
+        // Adiciona a mensagem do usuário
+        const userBubble = document.createElement('div');
+        userBubble.className = 'chat-bubble chat-bubble-user fade-in';
+        userBubble.textContent = pergunta;
+        chatContainer.appendChild(userBubble);
+        chatInput.value = '';
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+
+        // Simula a "digitação" da IA
+        typingIndicator.style.display = 'block';
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+
+        setTimeout(() => {
+            typingIndicator.style.display = 'none';
+            const botResponseBubble = document.createElement('div');
+            botResponseBubble.className = 'chat-bubble chat-bubble-bot fade-in';
+            botResponseBubble.innerHTML = gerarRespostaIA(pergunta, currentRemedioContext);
+            chatContainer.appendChild(botResponseBubble);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }, 1500);
+    }
+
+    // --- FUNÇÃO CENTRAL DA "IA" ---
+    function gerarRespostaIA(pergunta, remedioNomeCompleto) {
+        const perguntaLower = pergunta.toLowerCase();
+        // Normaliza o nome do remédio para buscar no banco de dados de bulas
+        const remedioKey = remedioNomeCompleto.toLowerCase();
+        const infoBula = bulaData[remedioKey];
+
+        if (!infoBula) {
+            return `Desculpe, não encontrei informações detalhadas sobre "${remedioNomeCompleto}" no meu banco de dados. Para dúvidas específicas, consulte um profissional de saúde.`;
         }
 
-        function mostrarResposta(tipoResposta) {
-            Array.from(chatRespostas.children).forEach(resp => resp.style.display = 'none');
-            
-            if (tipoResposta === 'efeitos') {
-                document.getElementById('resp-efeitos').style.display = 'block';
-            } else if (tipoResposta === 'esqueci') {
-                document.getElementById('resp-esqueci').style.display = 'block';
-            } else if (tipoResposta === 'posso_beber') {
-                document.getElementById('resp-posso_beber').style.display = 'block';
+        // --- Verificação de palavras-chave para respostas específicas ---
+        if (perguntaLower.includes('efeitos colaterais') || perguntaLower.includes('efeitos') || perguntaLower.includes('mal')) {
+            return `Para **${infoBula.nome}**: ${infoBula.efeitos_colaterais}`;
+        } 
+        if (perguntaLower.includes('esqueci') || (perguntaLower.includes('dose') && perguntaLower.includes('esqueci'))) {
+            return `Para **${infoBula.nome}**: ${infoBula.esqueci_dose}`;
+        }
+        if (perguntaLower.includes('álcool') || perguntaLower.includes('beber') || perguntaLower.includes('bebida')) {
+            return `Para **${infoBula.nome}**: ${infoBula.alcool}`;
+        }
+        if (perguntaLower.includes('para que serve') || perguntaLower.includes('função') || perguntaLower.includes('uso')) {
+            return `Para **${infoBula.nome}**: ${infoBula.para_que_serve}`;
+        }
+        if (perguntaLower.includes('dúvidas') || perguntaLower.includes('outras')) {
+            if (infoBula.outras_duvidas) {
+                return `Para **${infoBula.nome}**: ${infoBula.outras_duvidas}`;
             }
         }
+        
+        // --- Respostas mais inteligentes para perguntas abertas ---
+        if (perguntaLower.includes('olá') || perguntaLower.includes('oi')) {
+            return `Olá! Como posso te ajudar hoje sobre **${infoBula.nome}**?`;
+        }
+        if (perguntaLower.includes('obrigado') || perguntaLower.includes('valeu')) {
+            return `De nada! Se tiver mais alguma dúvida sobre **${infoBula.nome}**, é só perguntar.`;
+        }
+        if (perguntaLower.includes('como devo tomar') || perguntaLower.includes('posologia')) {
+             // Tenta buscar a posologia do item original da receita (se a receita completa estiver guardada)
+             if (fullReceitaData && fullReceitaData.receita) {
+                const remedioDaReceita = fullReceitaData.receita.find(r => r.remedio.toLowerCase() === remedioKey);
+                if (remedioDaReceita && remedioDaReceita.posologia) {
+                    return `Sua prescrição para **${infoBula.nome}** é: "${remedioDaReceita.posologia}". Siga as orientações do seu médico.`;
+                }
+             }
+             return `Para **${infoBula.nome}**, a posologia deve ser seguida conforme a orientação do seu médico na receita. Verifique o seu cartão de alta.`;
+        }
+
+        // --- Resposta genérica se não reconhecer a pergunta ---
+        return `Desculpe, não entendi sua pergunta sobre **${infoBula.nome}**. Poderia tentar reformular ou fazer uma pergunta mais específica sobre os **efeitos colaterais**, **esquecer uma dose**, **álcool** ou **para que serve**?`;
+    }
+
+    // Função para os botões de sugestão (agora mais dinâmicos)
+    function enviarPerguntaSugestao(pergunta) {
+        enviarPergunta(pergunta);
+    }
+
+    // Inicia a tela de boas-vindas
+    document.addEventListener('DOMContentLoaded', () => {
+        mostrarTela('view-welcome');
+    });
     </script>
 </body>
 </html>
