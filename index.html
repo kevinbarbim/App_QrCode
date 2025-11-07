@@ -97,7 +97,7 @@
         // --- SEÇÃO DE REFERÊNCIAS DA DOM ---
         const viewWelcome = document.getElementById('view-welcome');
         const viewReceita = document.getElementById('view-receita');
-        const viewChat = document.getElementById('view-chat'); // NOVO
+        const viewChat = document.getElementById('view-chat');
         
         const btnStartScan = document.getElementById('btn-start-scan');
         const qrReaderDiv = document.getElementById('qr-reader');
@@ -107,10 +107,10 @@
         const nomePaciente = document.getElementById('nome-paciente');
         const btnPanico = document.getElementById('btn-panico');
 
-        const btnChatVoltar = document.getElementById('btn-chat-voltar'); // NOVO
-        const chatRemedioNome = document.getElementById('chat-remedio-nome'); // NOVO
-        const chatRemedioNome2 = document.getElementById('chat-remedio-nome-2'); // NOVO
-        const chatRespostas = document.getElementById('chat-respostas'); // NOVO
+        const btnChatVoltar = document.getElementById('btn-chat-voltar');
+        const chatRemedioNome = document.getElementById('chat-remedio-nome');
+        const chatRemedioNome2 = document.getElementById('chat-remedio-nome-2');
+        const chatRespostas = document.getElementById('chat-respostas');
 
         const html5QrCode = new Html5Qrcode("qr-reader");
 
@@ -123,50 +123,82 @@
         }
 
         // --- SEÇÃO DO LEITOR DE QR CODE ---
-        // --- SEÇÃO DO LEITOR DE QR CODE ---
-function onScanSuccess(decodedText, decodedResult) {
-    
-    // 1. Feedback imediato
-    scanFeedback.innerText = "Sucesso! Processando...";
-    scanFeedback.className = "text-success fw-bold";
-    console.log("QR Code lido:", decodedText);
 
-    // 2. Parar a câmera é uma operação assíncrona.
-    // Vamos garantir que ela pare, mas não vamos travar o app se der erro.
-    html5QrCode.stop().then(() => {
-        console.log("Câmera parada.");
-    }).catch(err => {
-        console.warn("Erro ao parar a câmera, mas tudo bem, seguimos em frente.", err);
-    }).finally(() => { 
-        // 3. TENTAR processar os dados
-        try {
-            // AQUI PODE ESTAR O ERRO: Se o texto do QR Code não for um JSON válido, vai falhar.
-            const data = JSON.parse(decodedText);
+        // O QUE FAZER QUANDO O SCAN FUNCIONA
+        function onScanSuccess(decodedText, decodedResult) {
             
-            // Se passou do JSON.parse, estamos bem!
-            console.log("JSON processado com sucesso:", data);
-            
-            // 4. Renderizar os dados na tela
-            renderReceita(data);
-            
-            // 5. Mudar para a tela da receita
-            mostrarTela('view-receita');
+            // 1. Feedback imediato
+            scanFeedback.innerText = "Sucesso! Processando...";
+            scanFeedback.className = "text-success fw-bold";
+            console.log("QR Code lido:", decodedText);
 
-        } catch (error) {
-            // 6. Se deu erro no JSON.parse
-            console.error("FALHA AO PROCESSAR O JSON!", error);
-            // Isso é o que você vê: "Sucesso! Carregando receita..."
-            // Vamos mudar a mensagem de feedback para o usuário
-            scanFeedback.innerText = "Erro: Este QR Code não é uma receita válida.";
-            scanFeedback.className = "text-danger fw-bold";
-            
-            // Reinicia o botão de scan para o usuário tentar de novo
-            btnStartScan.style.display = 'block';
-            qrReaderDiv.style.display = 'none';
-            scanFeedback.style.display = 'block'; // Garante que a msg de erro apareça
+            // 2. Parar a câmera
+            html5QrCode.stop().then(() => {
+                console.log("Câmera parada.");
+            }).catch(err => {
+                console.warn("Erro ao parar a câmera, mas seguimos em frente.", err);
+            }).finally(() => { 
+                // 3. TENTAR processar os dados
+                try {
+                    const data = JSON.parse(decodedText);
+                    console.log("JSON processado com sucesso:", data);
+                    
+                    // 4. Renderizar os dados na tela
+                    renderReceita(data);
+                    
+                    // 5. Mudar para a tela da receita
+                    mostrarTela('view-receita');
+
+                } catch (error) {
+                    // 6. Se deu erro no JSON.parse
+                    console.error("FALHA AO PROCESSAR O JSON!", error);
+                    scanFeedback.innerText = "Erro: Este QR Code não é uma receita válida.";
+                    scanFeedback.className = "text-danger fw-bold";
+                    
+                    // Reinicia o botão de scan
+                    btnStartScan.style.display = 'block';
+                    qrReaderDiv.style.display = 'none';
+                    // Deixamos a mensagem de erro visível
+                    scanFeedback.style.display = 'block'; 
+                }
+            });
         }
-    });
-}
+
+        // O QUE FAZER SE O SCAN FALHAR (pode deixar vazia)
+        function onScanFailure(error) {
+            // Apenas loga no console, não irrita o usuário
+            // console.warn(`Scan de QR code falhou: ${error}`);
+        }
+
+        // !!! ESTE É O BLOCO QUE INICIA A CÂMERA !!!
+        // O QUE FAZER QUANDO O USUÁRIO CLICA EM "ESCANEAR"
+        btnStartScan.addEventListener('click', () => {
+            qrReaderDiv.style.display = 'block'; // Mostra o leitor
+            scanFeedback.style.display = 'block'; // Mostra a msg "Centralizando..."
+            scanFeedback.innerText = "Centralizando o QR Code..."; // Reseta a msg
+            scanFeedback.className = "text-muted small mt-2"; // Reseta a cor
+            btnStartScan.style.display = 'none'; // Esconde o botão
+
+            // Configurações da câmera
+            html5QrCode.start(
+                { facingMode: "environment" }, // Pedir a câmera traseira (ótimo para mobile)
+                {
+                    fps: 10,                // Frames por segundo
+                    qrbox: { width: 250, height: 250 } // Caixa de scan
+                },
+                onScanSuccess,  // Callback de sucesso
+                onScanFailure   // Callback de falha
+            ).catch(err => {
+                // Erro ao LIGAR a câmera (ex: permissão negada)
+                console.error("Erro ao iniciar a câmera:", err);
+                alert("Não foi possível acessar a câmera. Você deu permissão no navegador?");
+                // Reseta a UI
+                btnStartScan.style.display = 'block';
+                qrReaderDiv.style.display = 'none';
+                scanFeedback.style.display = 'none';
+            });
+        });
+
 
         // --- SEÇÃO DA TELA DE RECEITA ---
         function renderReceita(data) {
@@ -174,13 +206,12 @@ function onScanSuccess(decodedText, decodedResult) {
             listaRemedios.innerHTML = "";
             
             data.receita.forEach(item => {
-                const card = document.createElement('a'); // Mudar para 'a' (link)
+                const card = document.createElement('a');
                 card.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
-                card.href = "#"; // É um botão
+                card.href = "#";
                 
-                // Salva os dados no próprio elemento para o BulaBot
-                card.dataset.remedioNome = item.remedio; // NOVO
-                card.dataset.id = item.id; // NOVO
+                card.dataset.remedioNome = item.remedio;
+                card.dataset.id = item.id;
 
                 card.innerHTML = `
                     <div>
@@ -188,9 +219,9 @@ function onScanSuccess(decodedText, decodedResult) {
                         <p class="mb-1 small">${item.posologia}</p>
                         <small class="text-muted">Por ${item.dias} dias.</small>
                     </div>
-                    <i class="bi bi-question-circle-fill text-primary fs-3"></i> `;
+                    <i class="bi bi-question-circle-fill text-primary fs-3"></i> 
+                `;
                 
-                // NOVO: Event listener para abrir o chat
                 card.addEventListener('click', (e) => {
                     e.preventDefault();
                     abrirChat(item.remedio);
@@ -204,34 +235,24 @@ function onScanSuccess(decodedText, decodedResult) {
             alert('ALERTA ENVIADO! 🚨\n\nSua solicitação foi enviada à central de enfermagem. Em breve, um profissional de saúde entrará em contato.');
         });
 
-        // --- SEÇÃO DO BULABOT (CHAT) --- // NOVO
+        // --- SEÇÃO DO BULABOT (CHAT) ---
         
         btnChatVoltar.addEventListener('click', () => {
             mostrarTela('view-receita');
         });
 
         function abrirChat(nomeDoRemedio) {
-            // Atualiza os nomes na tela de chat
             chatRemedioNome.innerText = nomeDoRemedio;
             chatRemedioNome2.innerText = nomeDoRemedio;
             
-            // Reseta as respostas
             Array.from(chatRespostas.children).forEach(resp => resp.style.display = 'none');
             
-            // Aqui você poderia ter uma lógica para mostrar perguntas DIFERENTES
-            // por remédio, mas para o hackathon, as mesmas perguntas servem.
-            
-            // Mostra a tela de chat
             mostrarTela('view-chat');
         }
 
         function mostrarResposta(tipoResposta) {
-            // Esconde todas as respostas primeiro
             Array.from(chatRespostas.children).forEach(resp => resp.style.display = 'none');
             
-            // Mostra a resposta específica
-            // (Para a demo, as respostas são genéricas e estão hardcoded)
-            // Na vida real, você teria um JSON de respostas.
             if (tipoResposta === 'efeitos') {
                 document.getElementById('resp-efeitos').style.display = 'block';
             } else if (tipoResposta === 'esqueci') {
@@ -240,6 +261,6 @@ function onScanSuccess(decodedText, decodedResult) {
                 document.getElementById('resp-posso_beber').style.display = 'block';
             }
         }
-      </script>
+    </script>
 </body>
 </html>
